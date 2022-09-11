@@ -116,12 +116,14 @@ public class Player extends Entity {
                     hasKey++;
                     gp.obj[i] = null;
                     System.out.println("You found a very large key.\nKeys: "+hasKey);
+                    gp.playSE(1);
                     break;
                 case "Door":
                     if (hasKey > 0) {
                         gp.obj[i] = null;
                         hasKey--;
                         System.out.println("You opened the door with da key.\nKeys: "+hasKey);
+                        gp.playSE(3);
                     } else {
                         System.out.println("The door is locked.");
                     }
@@ -130,6 +132,12 @@ public class Player extends Entity {
                     break;
                 case "Tent":
                     System.out.println("Some dirty hobo probably lives in this tent.");
+                    break;
+                case "Boots":
+                    speed += 2;
+                    gp.obj[i] = null;
+                    System.out.println("You got them brand new Air Force 1's!!");
+                    gp.playSE(2);
                     break;
             }
         }
