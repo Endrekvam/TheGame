@@ -2,6 +2,7 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
+import main.UtilityTool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -15,7 +16,7 @@ public class Player extends Entity {
 
     public final int screenX;
     public final int screenY;
-    int hasKey = 0;
+    public int hasKey = 0;
 
     public Player(GamePanel gp, KeyHandler keyH) {
 
@@ -27,11 +28,11 @@ public class Player extends Entity {
 
         solidArea = new Rectangle();
         solidArea.x = gp.tileSize/4;
-        solidArea.y = gp.tileSize/2;
+        solidArea.y = gp.tileSize/3 + (gp.tileSize/7);
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
-        solidArea.width = gp.tileSize - (gp.tileSize/2);
-        solidArea.height = gp.tileSize - (gp.tileSize/2);
+        solidArea.width = gp.tileSize/2;
+        solidArea.height = gp.tileSize/2;
 
         setDefaultValues();
         getPlayerImage();
@@ -39,24 +40,34 @@ public class Player extends Entity {
     public void setDefaultValues() {
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
-        speed = 5;
+        speed = 7;
         direction = "down";
     }
     public void getPlayerImage() {
-        try {
 
-            up1 = ImageIO.read(getClass().getResourceAsStream("/player/boy_up_1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/player/boy_up_2.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/player/boy_down_1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/player/boy_down_2.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/player/boy_left_1.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/player/boy_left_2.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/player/boy_right_1.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/player/boy_right_2.png"));
+        up1 = setup("boy_up_1");
+        up2 = setup("boy_up_2");
+        down1 = setup("boy_down_1");
+        down2 = setup("boy_down_2");
+        left1 = setup("boy_left_1");
+        left2 = setup("boy_left_2");
+        right1 = setup("boy_right_1");
+        right2 = setup("boy_right_2");
+
+    }
+    public BufferedImage setup(String imageName) {
+
+        UtilityTool uTool = new UtilityTool();
+        BufferedImage image = null;
+
+        try {
+            image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
+            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return image;
     }
     public void update() {
 
@@ -115,29 +126,32 @@ public class Player extends Entity {
                 case "Key":
                     hasKey++;
                     gp.obj[i] = null;
-                    System.out.println("You found a very large key.\nKeys: "+hasKey);
+                    gp.ui.showMessage("You found a giant key");
                     gp.playSE(1);
                     break;
                 case "Door":
                     if (hasKey > 0) {
                         gp.obj[i] = null;
                         hasKey--;
-                        System.out.println("You opened the door with da key.\nKeys: "+hasKey);
+                        gp.ui.showMessage("Get in");
                         gp.playSE(3);
                     } else {
-                        System.out.println("The door is locked.");
+                        gp.ui.showMessage("The door is locked");
                     }
                     break;
-                case "Chest":
-                    break;
                 case "Tent":
-                    System.out.println("Some dirty hobo probably lives in this tent.");
+                    gp.ui.showMessage("A tent");
                     break;
                 case "Boots":
                     speed += 2;
                     gp.obj[i] = null;
-                    System.out.println("You got them brand new Air Force 1's!!");
+                    gp.ui.showMessage("You found the legendary shoes!");
                     gp.playSE(2);
+                    break;
+                case "Chest":
+                    gp.ui.gameFinished = true;
+                    gp.stopMusic();
+                    gp.playSE(4);
                     break;
             }
         }
@@ -183,7 +197,7 @@ public class Player extends Entity {
                 }
                 break;
         }
-        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        g2.drawImage(image, screenX, screenY, null);
 
     }
 }
